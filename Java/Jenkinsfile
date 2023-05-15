@@ -12,7 +12,7 @@ pipeline{
    stage('Clean'){
     steps{
      script{
-      dir('${ApplicationPath}') {
+      dir(${ApplicationPath}) {
        sh 'pwd'
        sh 'mvn clean'
       }
@@ -22,7 +22,7 @@ pipeline{
    stage('build'){
     steps{
      script{
-      dir('${ApplicationPath}') {
+      dir(${ApplicationPath}) {
        sh 'mvn package'
       }
      }
