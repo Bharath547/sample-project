@@ -13,6 +13,7 @@ pipeline{
     steps{
      script{
       dir('${ApplicationPath}') {
+       sh 'pwd'
        sh 'mvn clean'
       }
      }
