@@ -9,12 +9,10 @@ pipeline{
      }
     }
    }
-   stage('clean'){
+   stage("${ApplicationPath}"){
     steps{
      script{
       dir('./Java') {
-       sh 'ls'
-       sh 'pwd'
        sh 'mvn clean'
       }
      }
@@ -23,10 +21,8 @@ pipeline{
    stage('build'){
     steps{
      script{
-      dir('./Java') {
-       sh 'ls'
-       sh 'pwd'
-       sh 'mvn clean'
+      dir("${ApplicationPath}") {
+       sh 'mvn package'
       }
      }
     }
