@@ -9,10 +9,10 @@ pipeline{
      }
     }
    }
-   stage('${ApplicationPath}'){
+   stage('Clean'){
     steps{
      script{
-      dir('./Java') {
+      dir('${ApplicationPath}') {
        sh 'mvn clean'
       }
      }
