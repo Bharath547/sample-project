@@ -12,6 +12,7 @@ pipeline{
    stage('clean'){
     steps{
      script{
+      sh 'ls'
       sh 'cd ${ApplicationPath}'
       sh 'pwd'
       sh 'mvn clean'
