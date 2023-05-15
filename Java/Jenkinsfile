@@ -13,7 +13,7 @@ pipeline{
     steps{
      script{
       sh 'cd ${ApplicationPath}'
-	  sh 'pwd'
+      sh 'pwd'
       sh 'mvn clean'
      }
     }
