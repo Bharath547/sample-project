@@ -3,10 +3,8 @@ pipeline{
   stages{
    stage('Checkout Repo') {
     steps{
-     script{
-      cleanWs()
-      checkout([$class: CheckOutClass, branches: [[name: BranchName]], browser: [$class: BrowserClass], userRemoteConfigs: [[credentialsId: PrivateKeyID, url: SourceURL]]])
-     }
+     cleanWs()
+     checkout([$class: CheckOutClass, branches: [[name: BranchName]], browser: [$class: BrowserClass], userRemoteConfigs: [[credentialsId: PrivateKeyID, url: SourceURL]]])
     }
    }
    stage('Clean'){
