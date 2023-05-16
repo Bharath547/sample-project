@@ -14,7 +14,7 @@ pipeline{
        mvn clean && echo Hi bharath
        if [ -f ${ArtifactsPath}/*.jar ]
        then
-        rm ${ArtifactsPath}/*.jar'
+        rm ${ArtifactsPath}/*.jar
        else
         echo "no jar file"
        fi
