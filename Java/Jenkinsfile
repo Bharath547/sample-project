@@ -10,8 +10,15 @@ pipeline{
    stage('Clean'){
     steps{
      dir(ApplicationPath) {
-      sh 'mvn clean && echo Hi bharath'
-      sh '[ -f ${ArtifactsPath}/*.jar ] && rm ${ArtifactsPath}/*.jar'
+      sh '''
+       mvn clean && echo Hi bharath
+       if [ -f ${ArtifactsPath}/*.jar ]
+       then
+        rm ${ArtifactsPath}/*.jar'
+       else
+        echo "no jar file"
+       fi
+       '''
      }
     }
    }
