@@ -10,7 +10,7 @@
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <custom.output.directory>/var/lib/jenkins/temp/</custom.output.directory>
+    <custom.output.directory>/var/lib/jenkins/workspace/java-ci/Java/target/</custom.output.directory>
   </properties>
   <dependencies>
     <dependency>
