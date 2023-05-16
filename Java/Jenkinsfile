@@ -11,10 +11,8 @@ pipeline{
    }
    stage('Clean'){
     steps{
-     script{
-      dir(ApplicationPath) {
-       sh 'mvn clean'
-      }
+     dir(ApplicationPath) {
+      sh 'mvn clean'
      }
     }
    }
