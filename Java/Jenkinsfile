@@ -20,10 +20,8 @@ pipeline{
    }
    stage('build'){
     steps{
-     script{
-      dir(ApplicationPath) {
-       sh 'mvn package  -Dcustom.output.directory=${ArtifactsPath}'
-      }
+     dir(ApplicationPath) {
+      sh 'mvn package  -Dcustom.output.directory=${ArtifactsPath}'
      }
     }
    }
