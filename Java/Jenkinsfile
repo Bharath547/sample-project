@@ -22,7 +22,7 @@ pipeline{
     steps{
      script{
       dir(ApplicationPath) {
-       sh 'mvn package -DoutputDirectory=${ArtifactsPath}'
+       sh 'mvn package -Dcustom.output.directory=${ArtifactsPath}'
       }
      }
     }
