@@ -19,4 +19,14 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>3.2.0</version>
+      <configuration>
+        <outputDirectory>/var/lib/jenkins/workspace/java-ci/Java/temp</outputDirectory>
+      </configuration>
+    </plugin>
+  </plugins>
 </project>
