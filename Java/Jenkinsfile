@@ -11,7 +11,7 @@ pipeline{
     steps{
      dir(ApplicationPath) {
       sh 'mvn clean'
-      sh 'rm ${ArtifactsPath}/*.jar'
+      sh '[ -f ${ArtifactsPath}/*.jar ] && rm ${ArtifactsPath}/*.jar'
      }
     }
    }
