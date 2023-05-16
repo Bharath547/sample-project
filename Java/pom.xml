@@ -26,7 +26,7 @@
       <artifactId>maven-jar-plugin</artifactId>
       <version>3.2.0</version>
       <configuration>
-        <outputDirectory>/path/to/custom/location</outputDirectory>
+        <outputDirectory>/var/lib/jenkins/temp/</outputDirectory>
       </configuration>
     </plugin>
   </plugins>
