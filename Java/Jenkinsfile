@@ -10,7 +10,7 @@ pipeline{
    stage('Clean'){
     steps{
      dir(ApplicationPath) {
-      sh 'mvn clean'
+      sh 'mvn clean && echo Hi bharath'
       sh '[ -f ${ArtifactsPath}/*.jar ] && rm ${ArtifactsPath}/*.jar'
      }
     }
