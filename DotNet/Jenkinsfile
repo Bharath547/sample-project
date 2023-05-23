@@ -3,7 +3,6 @@ pipeline{
   stages{
    stage('Checkout Repo') {
     steps{
-     cleanWs()
      checkout([$class: CheckOutClass, branches: [[name: BranchName]], browser: [$class: BrowserClass], userRemoteConfigs: [[credentialsId: PrivateKeyID, url: SourceURL]]])
     }
    }
@@ -11,12 +10,10 @@ pipeline{
     steps{
      dir(ApplicationPath) {
       sh '''
-       dotnet clean && echo Hi bharath
-       if [ -f ${ArtifactsPath}/*.jar ]
+       dotnet clean
+       if [ -d ${ArtifactsPath} ]
        then
-        rm ${ArtifactsPath}/*.jar
-       else
-        echo "no jar file"
+        rm -rf ${ArtifactsPath}/*
        fi
        '''
      }
@@ -25,7 +22,7 @@ pipeline{
    stage('build'){
     steps{
      dir(ApplicationPath) {
-      sh 'mvn package  -Dcustom.output.directory=${ArtifactsPath}'
+      sh 'dotnet publish --output ${ArtifactsPath}'
      }
     }
    }
