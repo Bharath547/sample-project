@@ -19,7 +19,14 @@ pipeline{
      }
     }
    }
-   stage('build'){
+   stage('Testing'){
+    steps{
+     dir(ApplicationPath) {
+      sh 'dotnet test'
+     }
+    }
+   }
+   stage('Build'){
     steps{
      dir(ApplicationPath) {
       sh 'dotnet publish --output ${ArtifactsPath}'
