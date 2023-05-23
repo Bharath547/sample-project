@@ -19,7 +19,7 @@ pipeline{
      }
     }
    }
-   stage('Testing'){
+   stage('Unit Testing'){
     steps{
      dir(ApplicationPath) {
       sh 'dotnet test'
