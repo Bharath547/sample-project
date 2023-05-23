@@ -19,6 +19,13 @@ pipeline{
      }
     }
    }
+   stage('test'){
+    steps{
+     dir(ApplicationPath) {
+      sh 'dotnet test'
+     }
+    }
+   }
    stage('build'){
     steps{
      dir(ApplicationPath) {
