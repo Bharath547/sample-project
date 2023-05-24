@@ -8,13 +8,13 @@ pipeline{
    }
    stage('Clean'){
     steps{
-     sh 'rm '
+     sh 'rm -rf $ArtifactsPath'
     }
    }
    stage('build'){
     steps{
      dir(ApplicationPath) {
-      sh 'docker build -t $ImageName:$BUILD_NUMBER .'
+      sh 'pkg --out-path $ArtifactsPath app.js'
      }
     }
    }
