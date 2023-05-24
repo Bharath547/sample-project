@@ -11,7 +11,15 @@ pipeline{
      sh 'rm -rf $ArtifactsPath'
     }
    }
-   stage('build'){
+   stage('Install Dependencies')
+   {
+    steps{
+     dir(ApplicationPath) {
+      sh 'npm install'
+     }
+    }
+   }
+   stage('Generate Executables'){
     steps{
      dir(ApplicationPath) {
       sh 'pkg --out-path $ArtifactsPath app.js'
