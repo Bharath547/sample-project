@@ -16,7 +16,7 @@ pipeline{
    stage('build'){
     steps{
      dir(ApplicationPath) {
-      sh 'docker build -t node:$BUILD_NUMBER .'
+      sh 'docker build -t $ImageName:$BUILD_NUMBER .'
      }
     }
    }
