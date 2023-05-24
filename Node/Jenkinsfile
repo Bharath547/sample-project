@@ -9,7 +9,7 @@ pipeline{
    stage('Clean'){
     steps{
      dir(ApplicationPath) {
-      sh 'docker rmi node:latest 2> temp'
+      sh 'docker rmi node:latest 2> temp || true'
      }
     }
    }
