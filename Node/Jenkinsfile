@@ -10,7 +10,7 @@ pipeline{
     steps{
      dir(ApplicationPath) {
       sh '''
-       docker rmi node:latest
+       docker rmi node:latest 2> temp
        '''
      }
     }
