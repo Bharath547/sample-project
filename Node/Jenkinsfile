@@ -9,14 +9,14 @@ pipeline{
    stage('Clean'){
     steps{
      dir(ApplicationPath) {
-      sh 'docker rmi node:latest 2> temp || true'
+      sh 'docker rmi $(docker rmi -q node:*) 2> temp || true'
      }
     }
    }
    stage('build'){
     steps{
      dir(ApplicationPath) {
-      sh 'docker build -t node:latest .'
+      sh 'docker build -t node:$BUILD_NUMBER .'
      }
     }
    }
