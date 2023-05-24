@@ -8,7 +8,9 @@ pipeline{
    }
    stage('Clean'){
     steps{
-     sh 'rm -rf $ArtifactsPath'
+     dir(ApplicationPath) {
+      sh 'rm -rf $ArtifactsPath'
+     }
     }
    }
    stage('Install Dependencies')
