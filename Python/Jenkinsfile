@@ -9,9 +9,17 @@ pipeline{
    stage('Clean'){
     steps{
      dir(ApplicationPath) {
-      sh 'ls'
-      sh 'rm ${ZippedArtifacts}'
-      sh 'rm -rf ${DependenciesPath}'
+      sh '''
+       ls
+       if [ -f $ZippedArtifacts ]
+       then
+        rm $ZippedArtifacts
+       fi
+       if [ -d $DependenciesPath ]
+       then
+        rm -rf $DependenciesPath
+       fi
+      '''
      }
     }
    }
