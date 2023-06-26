@@ -4,7 +4,7 @@ pipeline{
    stage('Checkout Repo') {
     steps{
      checkout([$class: CheckOutClass, branches: [[name: BranchName]], browser: [$class: BrowserClass], userRemoteConfigs: [[credentialsId: PrivateKeyID, url: SourceURL]]])
-     sh 'ls'
+     sh 'ls Python'
     }
    }
    stage('Clean'){
