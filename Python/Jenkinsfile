@@ -11,9 +11,9 @@ pipeline{
      dir(ApplicationPath) {
       sh '''
        ls
-       if [ -f $ZippedArtifacts ]
+       if [ -f $ZipFile ]
        then
-        rm $ZippedArtifacts
+        rm $ZipFile
        fi
        if [ -d $DependenciesPath ]
        then
