@@ -27,7 +27,7 @@ pipeline{
    {
     steps{
      dir(ApplicationPath) {
-      sh 'python3 -m install -r requirements.txt --target $DependenciesPath'
+      sh 'python3 -m pip install -r requirements.txt --target $DependenciesPath'
      }
     }
    }
