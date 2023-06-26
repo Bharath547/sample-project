@@ -10,6 +10,7 @@ pipeline{
     steps{
      dir(ApplicationPath) {
       sh '''
+       pwd
        ls
        if [ -f $ZipFile ]
        then
@@ -27,6 +28,7 @@ pipeline{
    {
     steps{
      dir(ApplicationPath) {
+      sh 'ls'
       sh 'python3 -m pip install -r requirements.txt --target $DependenciesPath'
      }
     }
@@ -34,6 +36,7 @@ pipeline{
    stage('Generate Zipped Artifacts'){
     steps{
      dir(ApplicationPath) {
+       sh 'ls'
        sh 'tar -cvf $TarFile $ApplicationPath'
        sh 'gzip -f $TarFile'
      }
