@@ -10,8 +10,8 @@ pipeline{
     steps{
      dir(ApplicationPath) {
       sh 'ls'
-      sh 'rm $ZippedArtifacts'
-      sh 'rm -rf $DependenciesPath'
+      sh 'rm ${ZippedArtifacts}'
+      sh 'rm -rf ${DependenciesPath}'
      }
     }
    }
