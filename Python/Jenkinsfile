@@ -38,7 +38,7 @@ pipeline{
     steps{
      dir(ApplicationPath) {
        sh 'ls'
-       sh 'tar -cvf $TarFile $ApplicationPath'
+       sh 'tar -cvf $TarFile .'
        sh 'gzip -f $TarFile'
      }
     }
