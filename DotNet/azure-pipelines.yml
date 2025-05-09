@@ -1,0 +1,267 @@
+name: ${{ variables['Build.DefinitionName'] }} $(Date:yyyyMMdd).$(Rev:rr)
+
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+      - release/*
+      - bugfix/*
+
+pool:
+  vmImage: ubuntu-latest
+
+parameters:
+  # set this (rarely) to force new build quality check metric baseline
+  - name: ForceNewBuildQualityCheckBaseline
+    type: boolean
+    default: false
+    displayName: 'Force New Build Quality Check Baseline (for code coverage comparisons)'
+
+variables:
+  #System.Debug: true
+  BQC.ForceNewBaseline: ${{ parameters.ForceNewBuildQualityCheckBaseline }}
+  DD_CIVISIBILITY_AGENTLESS_ENABLED: true
+  DD_API_KEY: $(DataDogApiKey_CICDMetrics)
+  DD_SITE: us3.datadoghq.com
+  DD_AGENT_HOST: $(Agent.MachineName)
+  OCTOPUS_SERVICE_NAME: CXP Octopus Deploy
+
+stages:
+  - stage: stage_build
+    displayName: 'CI: Build Artifacts'
+    jobs:
+    - job: job_build
+      displayName: Build, Unit Test, Cover
+      #pool: DevOpsBuildStage
+      pool:
+        vmImage: ubuntu-latest
+      variables:
+        #COVERAGE_REPORTS_FOLDER: $(Build.ArtifactStagingDirectory)/coveragereports
+        DOTNET_PROJECT_FILE: ./FSPSystem.AppHost/FSPSystem.AppHost.csproj
+        DOTNET_SOLUTION_FILE: ./FSPSystem.slnx
+        #NUGET_CACHE_HOST_FOLDER: $(Pipeline.Workspace)/.nuget/packages
+        #NUGET_CACHE_CONTAINER_FOLDER: /root/.nuget/packages
+        OUT_BASE_FOLDER: $(Build.ArtifactStagingDirectory)/out
+      steps:
+      - checkout: self
+
+      - task: UseDotNet@2
+        inputs:
+          version: '9.x'
+        displayName: Set up .NET 9
+
+      - script: |
+          pwd
+          printenv | sort
+        displayName: Show env vars
+
+      - task: NuGetAuthenticate@1
+      - task: NuGetToolInstaller@1
+
+      - bash: |
+          # show each command and line number as this script runs
+          set -x && PS4='Pipeline task line ${LINENO}: '
+          pwd
+          ls -alF
+          printenv | sort
+
+          mkdir -p $(OUT_BASE_FOLDER)
+
+          chmod 777 ./.azdo/pipelines/build-test-publish.sh
+          ./.azdo/pipelines/build-test-publish.sh
+
+          # generate azure pipeline warnings messages from build log
+          #sed '/warning/ s/^/##vso[task.logissue type=warning]/' $(OUT_BASE_FOLDER)/build.log
+        workingDirectory: $(System.DefaultWorkingDirectory)
+        #env:
+        #  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+        displayName: Build with checks
+
+      - bash: |
+          pwd
+          ls -alF
+        workingDirectory: $(OUT_BASE_FOLDER)
+        displayName: List output folder
+
+      - bash: |
+          pwd
+          ls -alF
+        workingDirectory: $(Build.ArtifactStagingDirectory)
+        displayName: List artifact staging folder
+
+      #- publish: $(OUT_BASE_FOLDER)/publish
+      #  artifact: webapi
+      #  displayName: Publish webapi pipeline artifact
+
+      #- task: PublishTestResults@2
+      #  inputs:
+      #    testResultsFormat: 'VSTest'
+      #    testResultsFiles: '*.trx'
+      #    searchFolder: '$(OUT_BASE_FOLDER)/testresults'
+      #    failTaskOnFailedTests: false
+      #    testRunTitle: 'CI - Unit Tests'
+      #  displayName: Publish test results
+
+      #- task: PublishCodeCoverageResults@2
+      #  inputs:
+      #    summaryFileLocation: '$(Build.ArtifactStagingDirectory)/**/*.cobertura.xml'
+      #    pathToSources: '$(System.DefaultWorkingDirectory)'
+      #    failIfCoverageEmpty: true
+      #  displayName: Publish code coverage results
+
+      #- task: reportgenerator@5
+      #  inputs:
+      #    reports: '$(OUT_BASE_FOLDER)/testresults/**/*.cobertura.xml'
+      #    targetdir: '$(COVERAGE_REPORTS_FOLDER)'
+      #    sourcedirs: '$(System.DefaultWorkingDirectory)'
+      #    reporttypes: 'HtmlInline_AzurePipelines_Dark;Cobertura'
+      #    publishCodeCoverageResults: true
+
+      - task: BuildQualityChecks@9
+        inputs:
+          checkWarnings: true
+          warningFailOption: 'fixed'
+          warningThreshold: '0'
+          showStatistics: true
+          evaluateTaskWarnings: true
+          #checkCoverage: true
+          #coverageFailOption: 'build'
+          #coverageType: 'lines'
+          treat0of0as100: true
+          forceCoverageImprovement: false
+          coverageUpperThreshold: '80'
+          ignoreDecreaseAboveUpperThreshold: false
+          includePartiallySucceeded: false
+
+# Only run the Deploy stage when manually triggered and only on specific branches
+  - ${{ if eq(variables['Build.Reason'], 'Manual') }}:
+    - ${{ if or(eq(variables['Build.SourceBranch'], 'refs/heads/main'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/bugfix/'), startsWith(variables['Build.SourceBranch'], 'refs/heads/feature/FSP-74')) }}:
+      - stage: Deploy
+        displayName: Pre-deploy to Azure
+        variables:
+          AZURE_ENV_NAME: 'Stage'
+          AZURE_LOCATION: 'eastus2'
+          AZURE_SUBSCRIPTION_ID: '9b87883e-0ff9-4891-b158-dd2467f83bee'
+          AZURE_RESOURCE_GROUP: 'Infrastructure_RG'
+        jobs:
+          # - job: PreDeployToAzure
+          #   displayName: Pre-Deploy FullServiceProto1 to Azure
+
+          #   steps:
+          #     - task: setup-azd@1
+          #       displayName: Install azd
+
+          #     # azd delegate auth-to-az to use service connection with AzureCLI@2
+          #     - pwsh: |
+          #         azd config set auth.useAzCliAuth "true"
+          #       displayName: Configure AZD to Use AZ CLI Authentication.
+
+          #     - task: UseDotNet@2
+          #       inputs:
+          #         version: '9.x'
+          #       displayName: Set up .NET 9
+
+          #     - task: AzureCLI@2
+          #       inputs:
+          #         azureSubscription: 'Azure FSP NonProd'
+          #         scriptType: bash
+          #         scriptLocation: inlineScript
+          #         keepAzSessionActive: true
+          #         inlineScript: |
+          #           azd provision --no-prompt
+          #       env:
+          #         AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          #         AZURE_RESOURCE_GROUP: $(AZURE_RESOURCE_GROUP)
+          #         AZURE_ENV_NAME: $(AZURE_ENV_NAME)
+          #         AZURE_LOCATION: $(AZURE_LOCATION)
+          #         AZD_INITIAL_ENVIRONMENT_CONFIG: $(AZD_INITIAL_ENVIRONMENT_CONFIG)
+          #       displayName: Preview Provision Infrastructure
+
+          # - job: ValidateProvisioning
+          #   displayName: User Validation for Provisioning
+          #   dependsOn: PreDeployToAzure
+          #   condition: succeeded('PreDeployToAzure') # only run if the previous job succeeded
+          #   pool: server
+          #   timeoutInMinutes: 4320 # job times out in 3 days
+          #   steps:
+          #   - task: ManualValidation@1
+          #     timeoutInMinutes: 1440 # task times out in 1 day
+          #     inputs:
+          #       #notifyUsers: |
+          #       #  test@test.com,
+          #       #  example@example.com
+          #       #approvers: ...
+          #       instructions: 'Please review the results of the preview provisioning task. If provisioning preview is not as expected, please click "Reject" to halt the deployment. If no issues, please click "Resume" to continue with the deployment.'
+          #       # TODO: change this to false before productionizing:
+          #       allowApproversToApproveTheirOwnRuns: true
+          #       onTimeout: 'reject'
+
+          - deployment: DeployToAzure
+            displayName: Deploy FullServiceProto1 to Azure
+            #dependsOn: ValidateProvisioning
+            environment: Stage
+            strategy:
+              runOnce:
+                deploy:
+                  steps:
+                    - checkout: self
+
+                    - task: UseDotNet@2
+                      inputs:
+                        version: '9.x'
+                      displayName: Set up .NET 9
+
+                    # Azure Container Apps Deploy v1
+                    # An Azure DevOps Task to build and deploy Azure Container Apps.
+                    - task: AzureContainerApps@1
+                      inputs:
+                      # advanced
+                        workingDirectory: $(System.DefaultWorkingDirectory)
+                        appSourcePath: $(System.DefaultWorkingDirectory)/FSPSystem.ManagementAPI
+                        azureSubscription: 'Azure FSP NonProd'
+                        acrName: 'fspacr'
+                        #acrUsername: # string. Azure Container Registry username. 
+                        #acrPassword: # string. Azure Container Registry password. 
+                        #dockerfilePath: # string. Dockerfile path. 
+                        #imageToBuild: # string. Docker image to build. 
+                        #imageToDeploy: # string. Docker image to deploy. 
+                        #containerAppName: # string. Azure Container App name. 
+                        resourceGroup: 'Infrastructure_RG'
+                        containerAppEnvironment: 'cpayfspstage'
+                        #runtimeStack: # string. Application runtime stack. 
+                        #targetPort: # string. Application target port. 
+                        #location: # string. Location of the Container App. 
+                        #environmentVariables: # string. Environment variables. 
+                        #ingress: # string. Ingress setting. 
+                        #yamlConfigPath: # string. YAML configuration file path. 
+                        #disableTelemetry: # boolean. Disable telemetry.
+
+                    # - task: AzureCLI@2
+                    #   inputs:
+                    #     azureSubscription: azconnection
+                    #     scriptType: bash
+                    #     scriptLocation: inlineScript
+                    #     keepAzSessionActive: true
+                    #     inlineScript: |
+                    #       azd provision --no-prompt
+                    #   env:
+                    #     AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+                    #     AZURE_ENV_NAME: $(AZURE_ENV_NAME)
+                    #     AZURE_LOCATION: $(AZURE_LOCATION)
+                    #     AZD_INITIAL_ENVIRONMENT_CONFIG: $(AZD_INITIAL_ENVIRONMENT_CONFIG)
+                    #   displayName: Provision Infrastructure
+
+                    # - task: AzureCLI@2
+                    #   inputs:
+                    #     azureSubscription: azconnection
+                    #     scriptType: bash
+                    #     scriptLocation: inlineScript
+                    #     keepAzSessionActive: true
+                    #     inlineScript: |
+                    #       azd deploy --no-prompt
+                    #   env:
+                    #     AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+                    #     AZURE_ENV_NAME: $(AZURE_ENV_NAME)
+                    #     AZURE_LOCATION: $(AZURE_LOCATION)
+                    #   displayName: Deploy Application
